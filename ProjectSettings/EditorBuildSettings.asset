@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Main.unity
+    guid: 548330b6b2733cb45bc6161192ab9870
+  - enabled: 1
+    path: Assets/Scenes/SampleScene.unity
+    guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/GameCutFruit.unity
+    guid: 38cbbc2594ac44747865ac12840d0646
+  - enabled: 1
+    path: Assets/Scenes/GameDoor.unity
+    guid: 894b9bdecefdcc049a7d578adc7826f5
+  - enabled: 1
+    path: Assets/Scenes/GameGetFruit.unity
+    guid: a5208ae05a45be047ac32ab5704ccd5b
+  - enabled: 1
+    path: Assets/Scenes/Settlement.unity
+    guid: 68a395350cdaad24486b36e843e2e246
+  - enabled: 1
+    path: Assets/Scenes/WaitLevel/Delivery/DeliverScene.unity
+    guid: 032421354af07634db5a3b075a3ca120
+  - enabled: 1
+    path: Assets/Scenes/delivery.unity
+    guid: 3f63c0c09ec60eb46baaf2fcda795fd1
+  - enabled: 1
+    path: Assets/Scenes/WaitLevel/Cutfruit/CutfruitScene.unity
+    guid: daf1c1c51768cc84995a82db3c522996
+  - enabled: 1
+    path: Assets/Scenes/WaitLevel/CorrectDoor/CorrectDoorScene.unity
+    guid: 3664b1bfdc53c0a4b93aef60ab48223d
+  - enabled: 1
+    path: Assets/Scenes/WaitLevel/Getfruit/GetfruitScene.unity
+    guid: adab57a204b5aa245b1351b1c29169c6
+  - enabled: 1
+    path: Assets/Scenes/WaitLevel/Findfood/FindfoodScene.unity
+    guid: f33227cccb9d51f499e8033113cbf5a5
+  - enabled: 1
+    path: Assets/Scenes/findFood.unity
+    guid: 69db34509f094ae4f84818910c477f3c
+  - enabled: 1
+    path: Assets/Scenes/WaitLevel/Eatfood/EatfoodScene.unity
+    guid: 2dd77c2a95e00ac41a0185e19f645796
+  - enabled: 1
+    path: Assets/Scenes/eatFood.unity
+    guid: 03e55e326dadc5349bea66cfa515cada
+  - enabled: 1
+    path: Assets/Scenes/slot.unity
+    guid: a43d77462f581cc4399cc3a0e8f64097
+  m_configObjects:
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 3590b91b4603b465dbb4216d601bff33, type: 3}
+  m_UseUCBPForAssetBundles: 0

@@ -1,0 +1,168 @@
+using UnityEngine;
+using System.Collections.Generic;
+
+public class DoorInteraction : MonoBehaviour
+{
+
+    public int doorId; // 門的編號
+    public List<Transform> doors; // 門的編號
+    private AnimalController animalController;
+
+    public float moveSpeed = 3f; // 玩家移動速度
+    private Transform player; // 玩家物件
+    private int currentState = 0; // 狀態機：0 = 靜止, 1 = 進入門, 2 = 移動中, 3 = 離開門
+    private Transform targetDoor; // 目標門
+    private Vector3 initialPosition; // 初始位置
+    private Quaternion initialRotation; // 初始旋轉
+    private Quaternion targetRotation; // 目標旋轉
+    private float rotationSpeed = 90f; // 旋轉速度
+
+    // 定義門到門的固定傳送規則
+    private Dictionary<int, int> doorPaths = new Dictionary<int, int>
+    {
+        { 9, 4 },
+        { 7, 5 },
+        { 8, 6 },
+        { 4, 1 },
+        { 5, 8 },
+        { 6, 7 },
+        { 1, 9 },
+        { 3, 9 },
+        { 2, -1 } // -1 表示通關
+    };
+
+    // 第一層錯誤路徑時，所有選擇回到第一層
+    private HashSet<int> firstLayerDoors = new HashSet<int> { 4, 5, 6 };
+    private bool inErrorState = false; // 是否處於錯誤狀態
+
+    void Start()
+    {
+        animalController = GameObject.FindGameObjectWithTag("AnimalPlayer").GetComponent<AnimalController>();
+    }
+    
+
+    private void OnMouseDown()
+    {
+        if (inErrorState && firstLayerDoors.Contains(doorId))
+        {
+            Debug.Log($"錯誤狀態，回到第一層，從門 {doorId} 回到門 9");
+            TeleportToDoor(9); // 回到門 9
+            return;
+        }
+
+        if (doorPaths.ContainsKey(doorId))
+        {
+            int nextDoorId = doorPaths[doorId];
+
+            if (nextDoorId == -1)
+            {
+                Debug.Log("遊戲結束，恭喜通關！");
+                TeleportToDoor(2);
+                return;
+            }
+
+            if (doorId == 7 || doorId == 8)
+            {
+                inErrorState = true; // 進入錯誤狀態
+                Debug.Log($"從門 {doorId} 進入錯誤狀態！");
+            }
+
+            Debug.Log($"從門 {doorId} 到門 {nextDoorId}");
+            TeleportToDoor(nextDoorId - 1);
+        }
+        else
+        {
+            Debug.Log("無效的門編號！");
+        }
+    }
+
+    // private void TeleportToDoor(int targetDoorId)
+    // {
+    //     GameObject targetDoor = FindDoorById(targetDoorId);
+    //     if (targetDoor != null)
+    //     {
+    //         Vector3 targetPosition = targetDoor.transform.position + new Vector3(0, 0, -2); // 在門前停下
+    //         animalController.MoveTo(targetPosition);
+    //     }
+    //     else
+    //     {
+    //         Debug.LogWarning($"找不到目標門 {targetDoorId}");
+    //     }
+    // }
+    private void TeleportToDoor(int targetDoorId)
+    {
+        bool win = targetDoorId == 2;
+        // GameObject targetDoor = FindDoorById(targetDoorId);
+        Transform targetDoor = doors[targetDoorId];
+        if (targetDoor != null)
+        {
+            // 取得目標門的座標
+            Vector3 targetPosition = targetDoor.position;
+
+            // 調整玩家傳送位置，避免與門重疊（例如在門前停下）
+            targetPosition += new Vector3(0, 0, -2); // 在門前一點點位置
+
+            // 移動玩家
+            animalController.MoveTo(targetPosition, win);
+
+            Debug.Log($"玩家被傳送到門 {targetDoorId} 的位置: {targetPosition}");
+        }
+        else
+        {
+            Debug.LogWarning($"找不到目標門 {targetDoorId}");
+        }
+    }
+    public void OnDoorSelected(int doorIndex)
+    {
+        // 玩家選擇了一扇門
+        if (currentState == 0)
+        {
+            targetDoor = doors[doorIndex];
+            initialPosition = player.position;
+            initialRotation = player.rotation;
+            currentState = 1; // 開始進入門的流程
+        }
+    }
+
+    private void RotatePlayer(float angle, System.Action onComplete)
+    {
+        // 計算旋轉邏輯
+        if (targetRotation == Quaternion.identity)
+        {
+            targetRotation = Quaternion.Euler(player.eulerAngles + new Vector3(0, angle, 0));
+        }
+
+        player.rotation = Quaternion.RotateTowards(player.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        if (Quaternion.Angle(player.rotation, targetRotation) < 0.1f)
+        {
+            player.rotation = targetRotation;
+            targetRotation = Quaternion.identity; // 重置旋轉目標
+            onComplete?.Invoke();
+        }
+    }
+
+    private void MovePlayer(Vector3 targetPosition, System.Action onComplete)
+    {
+        // 計算移動邏輯
+        player.position = Vector3.MoveTowards(player.position, targetPosition, moveSpeed * Time.deltaTime);
+        if (Vector3.Distance(player.position, targetPosition) < 0.1f)
+        {
+            player.position = targetPosition;
+            onComplete?.Invoke();
+        }
+    }
+
+
+    private GameObject FindDoorById(int id)
+    {
+        foreach (GameObject door in GameObject.FindGameObjectsWithTag("Door"))
+        {
+            DoorInteraction doorScript = door.GetComponent<DoorInteraction>();
+            if (doorScript != null && doorScript.doorId == id)
+            {
+                return door;
+            }
+        }
+        return null;
+    }
+}

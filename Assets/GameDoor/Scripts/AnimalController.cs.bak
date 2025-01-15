@@ -1,0 +1,113 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+class Command
+{
+    public int type;
+    public Vector3 targetPosition;
+    public Quaternion targetRotation;
+
+    public Command(Vector3 targetPosition)
+    {
+        this.type = 0;
+        this.targetPosition = targetPosition;
+        this.targetRotation = Quaternion.identity;
+    }
+
+    public Command(Quaternion targetRotation)
+    {
+        this.type = 1;
+        this.targetPosition = Vector3.zero;
+        this.targetRotation = targetRotation;
+    }
+}
+
+public class AnimalController : MonoBehaviour
+{
+    public float moveSpeed = 20f; // 移動速度
+    public float rotateSpeed = 30f; // 移動速度
+    // private Vector3 targetPosition; // 目標位置
+    // private Quaternion targetRotation; // 目標位置
+    // private bool isMoving = false; // 是否正在移動
+    // private bool isRotating = false; // 是否正在
+    private Command currentCommand = null;
+    private Queue<Command> commands = new Queue<Command>();
+
+    void Start()
+    {
+        // targetPosition = transform.position; // 初始位置
+    }
+
+    void Update()
+    {
+        // 移動玩家到目標位置
+        // if (isMoving)
+        // {
+        //     transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+        //     if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
+        //     {
+        //         isMoving = false; // 到達目標位置
+        //     }
+        // } else if (isRotating) {
+        //     transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotateSpeed * Time.deltaTime);
+        //     if (Quaternion.Angle(transform.rotation, targetRotation) < 0.1f)
+        //     {
+        //         isRotating = false; // 到達目標位置
+        //     }
+        // }
+        if (currentCommand == null)
+        {
+            if (commands.Count > 0)
+            {
+                currentCommand = commands.Dequeue();
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        if (currentCommand.type == 0)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, currentCommand.targetPosition, moveSpeed * Time.deltaTime);
+            if (Vector3.Distance(transform.position, currentCommand.targetPosition) < 0.1f)
+            {
+                transform.position = currentCommand.targetPosition;
+                currentCommand = null;
+            }
+        }
+        else if (currentCommand.type == 1)
+        {
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, currentCommand.targetRotation, rotateSpeed * Time.deltaTime);
+            if (Quaternion.Angle(transform.rotation, currentCommand.targetRotation) < 0.1f)
+            {
+                transform.rotation = currentCommand.targetRotation;
+                currentCommand = null;
+            }
+        }
+    }
+
+    public void MoveTo(Vector3 position, bool win)
+    {
+        // targetPosition = position;
+        // isMoving = true;
+        Vector3 tempPosition = position;
+        tempPosition.z = transform.position.z + 10;
+        if(win){
+            commands.Enqueue(new Command(position+new Vector3(10,0,0)));
+
+            return;
+        }
+        commands.Enqueue(new Command(Quaternion.Euler(0, 0, 0)));
+        commands.Enqueue(new Command(transform.position + new Vector3(0, 0, 10)));
+        if (!win)
+        {
+            commands.Enqueue(new Command(Quaternion.Euler(0, 90, 0)));
+            commands.Enqueue(new Command(tempPosition));
+            commands.Enqueue(new Command(Quaternion.Euler(0, 180, 0)));
+            commands.Enqueue(new Command(position));
+            commands.Enqueue(new Command(Quaternion.Euler(0, 90, 0)));
+        }
+    }
+}
+
